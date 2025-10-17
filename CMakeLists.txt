@@ -34,6 +34,7 @@ else()
 endif()
 
 add_subdirectory(logic)
+add_subdirectory(tests)
 
 add_executable(scanner ${CMAKE_CURRENT_SOURCE_DIR}/logic/src/Main.cpp)
 target_link_libraries(scanner PRIVATE logic)
