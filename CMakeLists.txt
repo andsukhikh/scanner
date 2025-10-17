@@ -8,15 +8,29 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	message("-- Windows detected")
 	
-	set(OPENSSL_ROOT_DIR "$ENV{SystemDrive}/Program Files/OpenSSL-Win64")
-	set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/include")
-	set(OPENSSL_LIBRARIES "${OPENSSL_ROOT_DIR}/lib/VC/x64/MDd")
+	find_package(OpenSSL QUIET)
+	
+	if (OpenSSL_FOUND)
+		message(STATUS "-- OpenSSL found. Version: ${OPENSSL_VERSION}\n")
+	else()
+		message("-- OpenSSL environment variables were not found. Library paths will be set to default:\n")
+		
+		set(OPENSSL_ROOT_DIR "$ENV{SystemDrive}/Program Files/OpenSSL-Win64")
+		set(OPENSSL_INCLUDE_DIR "${OPENSSL_ROOT_DIR}/include")
+		set(OPENSSL_LIBRARIES "${OPENSSL_ROOT_DIR}/lib/VC/x64/MDd")
+		
+		message("-- OPENSSL_ROOT_DIR --> ${OPENSSL_ROOT_DIR}")
+		message("-- OPENSSL_INCLUDE_DIR --> ${OPENSSL_INCLUDE_DIR}")
+		message("-- OPENSSL_LIBRARIES --> ${OPENSSL_LIBRARIES}")
+		message("\n")
+		
+	endif()
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-	message("--Linux detected")
+	message("-- Linux detected")
 	
 	find_package(OpenSSL REQUIRED)
 else()
-	message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")
+	message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}\n")
 endif()
 
 add_subdirectory(logic)

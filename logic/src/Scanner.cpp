@@ -61,16 +61,11 @@ void Scanner::start()
 {
     Threads threads;
     ScannerReport scanner_report;
-    std::mutex mutex_;
 
     for (auto&& dir_enrty : std::filesystem::recursive_directory_iterator(path_to_directory_for_scanning_))
     {
         if(!dir_enrty.is_directory())
         {
-            {
-                std::lock_guard lock(mutex_);
-                std::cout << dir_enrty << std::endl;
-            }
             const auto logic = [this, &scanner_report, dir_enrty]()
                 {
                     const auto verifiable_file_hash = md5(dir_enrty.path());
@@ -88,7 +83,6 @@ void Scanner::start()
                         scanner_report.plus_viral_file();
                     }
                 };
-
             threads.take_task(logic);
         }
     }
@@ -120,7 +114,7 @@ std::string Scanner::md5(std::filesystem::path file_path)
 }
 
 Threads::Threads()
-    : MAX_THREADS{1}
+    : MAX_THREADS{std::thread::hardware_concurrency()}
 {}
 
 template<typename Func>
