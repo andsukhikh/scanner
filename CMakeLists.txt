@@ -5,6 +5,8 @@ project(Scanner)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+option(G_TESTS "Build Google Tests" OFF)
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	message("-- Windows detected")
 	
@@ -34,7 +36,12 @@ else()
 endif()
 
 add_subdirectory(logic)
-add_subdirectory(tests)
+
+
+if(G_TESTS)
+	add_subdirectory(tests)
+endif()
+
 
 add_executable(scanner ${CMAKE_CURRENT_SOURCE_DIR}/logic/src/Main.cpp)
 target_link_libraries(scanner PRIVATE logic)

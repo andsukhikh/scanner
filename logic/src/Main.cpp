@@ -8,6 +8,7 @@
 int main(int argc, char* argv[])
 {
     FlagsHandler flags_handler;
+
     try
     {
         flags_handler.parse(std::vector<std::string>(argv + 1, argv + argc));
@@ -21,7 +22,8 @@ int main(int argc, char* argv[])
                     << location.column() << ") `"
                     << location.function_name() << "`: " 
                     << exception.what() << '\n';
-        return 1;
+
+        return EXIT_FAILURE;
     }
 
     try
@@ -40,6 +42,7 @@ int main(int argc, char* argv[])
                     << location.column() << ") `"
                     << location.function_name() << "`: "
                     << exception.what() << '\n';
-        return 1;
+
+        return EXIT_FAILURE;
     }
 }

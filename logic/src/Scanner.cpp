@@ -46,8 +46,9 @@ std::string& Bases::operator[] (const std::string& hash)
 
 std::optional<std::string> Bases::match(const std::string& verifiable_hash)
 {
-    if (bases_.contains(verifiable_hash))
-        return bases_[verifiable_hash];
+    auto it = bases_.find(verifiable_hash);
+    if (it != bases_.end())
+        return it -> second;
 
     return std::nullopt;
 }
@@ -90,18 +91,18 @@ void Scanner::start()
 
 std::string Scanner::md5(std::filesystem::path file_path)
 {
-    std::fstream file(file_path, std::ios::binary | std::ios::ate | std::ios::in);
+    std::fstream file(file_path, std::ios::binary | std::ios::in);
     if (file.is_open())
     {
-        auto fileSize = std::filesystem::file_size(file_path);
+        auto file_size = std::filesystem::file_size(file_path);
 
-        char* buffer = new char[fileSize];
-        file.read(buffer, fileSize);
+        std::unique_ptr<char[]> buffer = std::make_unique<char[]>(file_size);
+
+        file.read(buffer.get(), file_size);
+        file.close();
 
         unsigned char result[MD5_DIGEST_LENGTH];
-        MD5(reinterpret_cast<unsigned char*>(buffer), fileSize, result);
-
-        delete[] buffer;
+        MD5(reinterpret_cast<const unsigned char*>(buffer.get()), file_size, result);
 
         std::ostringstream oss;
         for (std::size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
@@ -114,21 +115,25 @@ std::string Scanner::md5(std::filesystem::path file_path)
 }
 
 Threads::Threads()
-    : MAX_THREADS{std::thread::hardware_concurrency()}
+    : MAX_THREADS{std::max(1u, std::thread::hardware_concurrency()) }
 {}
 
 template<typename Func>
 void Threads::take_task(Func&& func)
 {
-    std::lock_guard lock(mutex_);
+    std::thread new_thread(func);
+    std::thread old_thread;
+
+    threads_.emplace_back(std::move(new_thread));
 
     if (threads_.size() >= MAX_THREADS)
     {
-        threads_.front().join();
+        old_thread = std::move(threads_.front());
         threads_.pop_front();
     }
 
-    threads_.emplace_back(func);
+    if (old_thread.joinable())
+        old_thread.join();
 }
 
 Threads::~Threads()

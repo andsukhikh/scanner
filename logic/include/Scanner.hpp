@@ -31,7 +31,6 @@ public:
 class Threads
 {
     std::deque<std::thread> threads_;
-    std::mutex mutex_;
     
     const unsigned int MAX_THREADS;
 public:
