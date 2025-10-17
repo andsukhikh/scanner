@@ -96,12 +96,14 @@ std::string Scanner::md5(std::filesystem::path file_path)
     {
         auto fileSize = std::filesystem::file_size(file_path);
 
-        std::vector<char> buffer(fileSize);
-        file.read(buffer.data(), fileSize);
+        char* buffer = new char[fileSize];
+        file.read(buffer, fileSize);
 
         unsigned char result[MD5_DIGEST_LENGTH];
-        MD5(reinterpret_cast<unsigned char*>(buffer.data()), fileSize, result);
+        MD5(reinterpret_cast<unsigned char*>(buffer), fileSize, result);
 
+        delete[] buffer;
+        
         std::ostringstream oss;
         for (std::size_t i = 0; i < MD5_DIGEST_LENGTH; ++i)
         {
