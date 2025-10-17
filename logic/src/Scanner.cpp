@@ -17,6 +17,7 @@
 #include <deque>
 #include <chrono>
 #include <exception>
+#include <memory>
 
 
 Bases::Bases(const std::filesystem::path& base_path)
@@ -61,7 +62,7 @@ Scanner::Scanner(std::string_view path_to_base, std::string_view folder_path)
 void Scanner::start()
 {
     Threads threads;
-    ScannerReport scanner_report;
+    std::shared_ptr<ScannerReport> scanner_report = std::make_shared<ScannerReport>();
 
     for (auto&& dir_enrty : std::filesystem::recursive_directory_iterator(path_to_directory_for_scanning_))
     {
@@ -69,19 +70,28 @@ void Scanner::start()
         {
             const auto logic = [this, &scanner_report, dir_enrty]()
                 {
-                    const auto verifiable_file_hash = md5(dir_enrty.path());
-                    const auto verdict = bases_.match(verifiable_file_hash);
-
-                    scanner_report.plus_checked_file();
-                    if (verifiable_file_hash.empty())
+                    try
                     {
-                        scanner_report.plus_error_file();
+                        std::shared_ptr<ScannerReport> scanner_report_ref{ scanner_report };
+
+                        const auto verifiable_file_hash = md5(dir_enrty.path());
+                        const auto verdict = bases_.match(verifiable_file_hash);
+
+                        scanner_report -> plus_checked_file(); 
+                        if (verifiable_file_hash.empty())
+                        {
+                            scanner_report -> plus_error_file();
+                        }
+
+                        if (verdict)
+                        {
+                            Logger::get_instance().log(dir_enrty.path(), verifiable_file_hash, verdict.value());
+                            scanner_report -> plus_viral_file();
+                        }
                     }
-
-                    if (verdict)
+                    catch (const std::exception& ex)
                     {
-                        Logger::get_instance().log(dir_enrty.path(), verifiable_file_hash, verdict.value());
-                        scanner_report.plus_viral_file();
+                        std::cout << ex.what() << std::endl;
                     }
                 };
             threads.take_task(logic);

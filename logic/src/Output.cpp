@@ -28,17 +28,17 @@ ScannerReport::ScannerReport()
 
 void ScannerReport::plus_error_file()
 {
-    ++number_of_error_files_;
+    number_of_error_files_++;
 }
 
 void ScannerReport::plus_viral_file()
 {
-    ++number_of_viral_files_;
+    number_of_viral_files_++;
 }
 
 void ScannerReport::plus_checked_file()
 {
-    ++number_of_checked_files_;
+    number_of_checked_files_++;
 }
 
 Logger::Logger() {}
