@@ -120,7 +120,7 @@ std::string Scanner::md5(std::filesystem::path file_path)
 }
 
 Threads::Threads()
-    : MAX_THREADS{std::thread::hardware_concurrency()}
+    : MAX_THREADS{1}
 {}
 
 template<typename Func>
