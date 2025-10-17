@@ -1,8 +1,9 @@
 #include <iostream>
+#include <source_location>
 
 #include "FlagsHandler.hpp"
 #include "Output.hpp"
-#include "Utility.hpp"
+#include "Scanner.hpp"
 
 int main(int argc, char* argv[])
 {
@@ -13,19 +14,32 @@ int main(int argc, char* argv[])
     }
     catch(const std::exception& exception)
     {
-        std::cout << exception.what() << std::endl;
-        std::terminate();
+        auto location = std::source_location::current();
+        std::clog << "file: "
+                    << location.file_name() << '('
+                    << location.line() << ':'
+                    << location.column() << ") `"
+                    << location.function_name() << "`: " 
+                    << exception.what() << '\n';
+        return 1;
     }
+
     try
     {
-        Logger::getInstance().set_log_directory_to(flags_handler.log_path);
+        Logger::get_instance().set_log_directory_to(flags_handler.log_path);
 
-        Utility utility(flags_handler.base_path, flags_handler.path_folder);
-        utility.start();
+        Scanner scanner(flags_handler.base_path, flags_handler.path_folder);
+        scanner.start();
     }
     catch (const std::exception& exception)
     {
-        std::cout << exception.what() << std::endl;
-        std::terminate();
+        auto location = std::source_location::current();
+        std::clog << "file: "
+                    << location.file_name() << '('
+                    << location.line() << ':'
+                    << location.column() << ") `"
+                    << location.function_name() << "`: "
+                    << exception.what() << '\n';
+        return 1;
     }
 }

@@ -1,26 +1,20 @@
 #include "Output.hpp"
 
 #include <iostream>
-#include <vector>
 #include <string>
 #include <fstream>
-#include <unordered_map>
 #include <format>
 #include <filesystem>
 #include <string_view>
 #include <mutex>
 #include <thread>
-#include <optional>
-#include <deque>
 #include <chrono>
-#include <algorithm>
-#include <exception>
 
 
-Scanner::~Scanner()
+ScannerReport::~ScannerReport()
 {
     auto end_time = std::chrono::steady_clock::now();
-    auto exec_time = duration_cast<std::chrono::milliseconds>(end_time - initial_time).count();
+    auto exec_time = std::chrono::duration_cast<std::chrono::milliseconds>(end_time - initial_time_).count();
 
     std::cout << std::format("Total checked files : {}\n", number_of_checked_files_.load());
     std::cout << std::format("Viruses detected : {}\n", number_of_viral_files_.load());
@@ -28,31 +22,31 @@ Scanner::~Scanner()
     std::cout << std::format("Execution time : {} ms\n", exec_time);
 }
 
-Scanner::Scanner() 
-        : initial_time(std::chrono::steady_clock::now())
+ScannerReport::ScannerReport() 
+        : initial_time_(std::chrono::steady_clock::now())
     {}
 
-void Scanner::plus_error_file()
+void ScannerReport::plus_error_file()
 {
     ++number_of_error_files_;
 }
 
-void Scanner::plus_viral_file()
+void ScannerReport::plus_viral_file()
 {
     ++number_of_viral_files_;
 }
 
-void Scanner::plus_checked_file()
+void ScannerReport::plus_checked_file()
 {
     ++number_of_checked_files_;
 }
 
 Logger::Logger() {}
 
-Logger& Logger::getInstance()
+Logger& Logger::get_instance()
 {
-    static Logger instance;
-    return instance;
+    static Logger instance_;
+    return instance_;
 }
 
 void Logger::set_log_directory_to(std::filesystem::path path)

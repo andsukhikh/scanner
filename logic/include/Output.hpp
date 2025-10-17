@@ -7,18 +7,17 @@
 #include <filesystem>
 
 
-class Scanner
+class ScannerReport
 {
     std::atomic<std::size_t> number_of_checked_files_{0};
     std::atomic<std::size_t> number_of_viral_files_{0};
     std::atomic<std::size_t> number_of_error_files_{0};
 
-    std::chrono::time_point<std::chrono::steady_clock> initial_time;
+    std::chrono::time_point<std::chrono::steady_clock> initial_time_;
 
 public:
-    ~Scanner(); 
-    Scanner();
-
+    ~ScannerReport(); 
+    ScannerReport();
 public:
     void plus_error_file();
     void plus_viral_file();
@@ -31,7 +30,7 @@ class Logger
     std::fstream log_file_;
     std::mutex mutex_;
 public:
-    static Logger& getInstance();
+    static Logger& get_instance();
 
     void set_log_directory_to(std::filesystem::path path);
 
