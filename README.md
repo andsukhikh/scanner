@@ -14,28 +14,45 @@ The scanner helps quickly identify suspicious files based on hash matches, provi
 ## Requirements
 
 - C++20 or higher  
-- CMake 3.16 or higher  
-- Compiler: GCC, Clang, or MSVC  
+- CMake 4.2 or higher  
+- Compiler: g++, Clang
 - OpenSSL: 3.6.0 
 
-## Installation
-	mkdir build
-	cd build
-	cmake ..
+### Installation
+
+1. Clone the repo
+   ```sh
+   git clone https://github.com/andsukhikh/scanner
+   ```
+2. Creating a build folder
+   ```sh
+   mkdir build
+   ```
+3. Сreating assembly instructions and preparing packages withou gtest
+   ```js
+   cmake ..
+   ```
+4. ... with gtest
+   ```sh
+   cmake .. -DG_TESTS=ON
+   ```
+5. Assembling
+   ```sh
 	cmake --build .
+   ```
 ## Usage
 	Usage: scanner [--path <dir>] [--log <file>] [--base <file>]
 
 Options:
-  - -- **path** –   Path to directory to scan (recursive).
-  - -- **log** –   Path to file where detected matches will be logged.
-  - -- **base** –   Path to CSV database file with known malicious MD5 hashes.
+  - **-- path** –   Path to directory to scan (recursive).
+  - **-- log** –   Path to file where detected matches will be logged.
+  - **-- base** –   Path to CSV database file with known malicious MD5 hashes.
 
 ## Example
-Scan **/scan*** using database **data/malicious_hashes.csv** and write matches to **found.txt**:
+Scan **/scan** using database **data/malicious_hashes.csv** and write matches to **found.txt**:
 
 
-scanner.exe --path /home/user/scan --base data/malicious_hashes.csv --log found.log
+**scanner.exe** **--path** /home/user/scan **--base** data/malicious_hashes.csv **--log** found.log**
 ## CSV Database Format
 
 The CSV file should contain MD5 hashes (optionally with metadata). Simple accepted formats:
