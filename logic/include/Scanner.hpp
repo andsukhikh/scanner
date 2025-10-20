@@ -2,7 +2,7 @@
 #include <string>
 #include <filesystem>
 #include <optional>
-#include <deque>
+#include <queue>
 #include <thread>
 #include <mutex>
 
@@ -30,7 +30,7 @@ public:
 
 class Threads
 {
-    std::deque<std::thread> threads_;
+    std::queue<std::thread> threads_;
     
     const unsigned int MAX_THREADS;
 public:

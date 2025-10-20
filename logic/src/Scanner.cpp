@@ -14,10 +14,11 @@
 #include <mutex>
 #include <thread>
 #include <optional>
-#include <deque>
+#include <queue>
 #include <chrono>
 #include <exception>
 #include <memory>
+#include <source_location>
 
 
 Bases::Bases(const std::filesystem::path& base_path)
@@ -68,12 +69,10 @@ void Scanner::start()
     {
         if(!dir_enrty.is_directory())
         {
-            const auto logic = [this, &scanner_report, dir_enrty]()
+            const auto logic = [this, scanner_report, dir_enrty]()
                 {
                     try
                     {
-                        std::shared_ptr<ScannerReport> scanner_report_ref{ scanner_report };
-
                         const auto verifiable_file_hash = md5(dir_enrty.path());
                         const auto verdict = bases_.match(verifiable_file_hash);
 
@@ -89,9 +88,17 @@ void Scanner::start()
                             scanner_report -> plus_viral_file();
                         }
                     }
-                    catch (const std::exception& ex)
+                    catch (const std::exception& exception)
                     {
-                        std::cout << ex.what() << std::endl;
+                        auto location = std::source_location::current();
+                        std::clog << "file: "
+                            << location.file_name() << '('
+                            << location.line() << ':'
+                            << location.column() << ") `"
+                            << location.function_name() << "`: "
+                            << exception.what() << '\n';
+
+                        return EXIT_FAILURE;
                     }
                 };
             threads.take_task(logic);
@@ -109,7 +116,6 @@ std::string Scanner::md5(std::filesystem::path file_path)
         std::unique_ptr<char[]> buffer = std::make_unique<char[]>(file_size);
 
         file.read(buffer.get(), file_size);
-        file.close();
 
         unsigned char result[MD5_DIGEST_LENGTH];
         MD5(reinterpret_cast<const unsigned char*>(buffer.get()), file_size, result);
@@ -134,12 +140,12 @@ void Threads::take_task(Func&& func)
     std::thread new_thread(func);
     std::thread old_thread;
 
-    threads_.emplace_back(std::move(new_thread));
+    threads_.emplace(std::move(new_thread));
 
     if (threads_.size() >= MAX_THREADS)
     {
         old_thread = std::move(threads_.front());
-        threads_.pop_front();
+        threads_.pop();
     }
 
     if (old_thread.joinable())
@@ -148,7 +154,13 @@ void Threads::take_task(Func&& func)
 
 Threads::~Threads()
 {
-    for (auto&& thread : threads_)
-        if (thread.joinable())
-            thread.join();
+    while (!threads_.empty())
+    {
+        auto front_thread = std::move(threads_.front());
+        if (front_thread.joinable())
+        {
+            front_thread.join();
+        }
+        threads_.pop();
+    }
 }
