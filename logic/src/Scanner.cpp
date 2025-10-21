@@ -65,7 +65,7 @@ void Scanner::start()
     Threads threads;
     std::shared_ptr<ScannerReport> scanner_report = std::make_shared<ScannerReport>();
 
-    for (auto&& dir_enrty : std::filesystem::recursive_directory_iterator(path_to_directory_for_scanning_))
+    for (auto&& dir_enrty : std::filesystem::recursive_directory_iterator(path_to_directory_for_scanning_, std::filesystem::directory_options::skip_permission_denied))
     {
         if(!dir_enrty.is_directory())
         {
@@ -97,8 +97,6 @@ void Scanner::start()
                             << location.column() << ") `"
                             << location.function_name() << "`: "
                             << exception.what() << '\n';
-
-                        return EXIT_FAILURE;
                     }
                 };
             threads.take_task(logic);
