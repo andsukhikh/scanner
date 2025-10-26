@@ -13,7 +13,6 @@ class Bases
 public:
     Bases(const std::filesystem::path& base_path);
 
-    std::string& operator[] (const std::string& hash);
     std::optional<std::string> match(const std::string& verifiable_hash);
 };
 
@@ -22,7 +21,7 @@ class Scanner
     Bases bases_;
     std::filesystem::path path_to_directory_for_scanning_;
 public:
-    Scanner(std::string_view path_to_base, std::string_view folder_path);
+    Scanner(const std::filesystem::path& path_to_base, const std::filesystem::path& folder_path);
     void start();
     std::string md5(std::filesystem::path file_path);
 

@@ -3,7 +3,6 @@
 
 #include <openssl/md5.h>
 
-
 #include <iostream>
 #include <vector>
 #include <string>
@@ -41,11 +40,6 @@ Bases::Bases(const std::filesystem::path& base_path)
     }
 }
 
-std::string& Bases::operator[] (const std::string& hash)
-{
-    return bases_[hash];
-}
-
 std::optional<std::string> Bases::match(const std::string& verifiable_hash)
 {
     auto it = bases_.find(verifiable_hash);
@@ -55,7 +49,7 @@ std::optional<std::string> Bases::match(const std::string& verifiable_hash)
     return std::nullopt;
 }
 
-Scanner::Scanner(std::string_view path_to_base, std::string_view folder_path)
+Scanner::Scanner(const std::filesystem::path& path_to_base, const std::filesystem::path& folder_path)
         : bases_(path_to_base)
         , path_to_directory_for_scanning_(folder_path)
     {}
@@ -76,7 +70,7 @@ void Scanner::start()
                         const auto verifiable_file_hash = md5(dir_enrty.path());
                         const auto verdict = bases_.match(verifiable_file_hash);
 
-                        scanner_report -> plus_checked_file(); 
+                        scanner_report -> plus_checked_file();
                         if (verifiable_file_hash.empty())
                         {
                             scanner_report -> plus_error_file();

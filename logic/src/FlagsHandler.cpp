@@ -24,12 +24,14 @@ void FlagsHandler::parse(const std::vector<std::string>& argv)
             return {};
         };
 
-    auto handle_path = [](std::string& path, const std::string& default_filename = "")
+    auto handle_path = [](std::filesystem::path path, const std::string& default_filename = "") -> std::filesystem::path
         {
             if (path.empty())
             {
                 std::cout << "Note: If the " + default_filename + " path is not specified, it will be created in the current directory" << std::endl;
                 path = (std::filesystem::current_path() / default_filename).string();
+
+                return path;
             }
 
             if(default_filename == "" && !std::filesystem::is_directory(path))
@@ -39,19 +41,14 @@ void FlagsHandler::parse(const std::vector<std::string>& argv)
 
             if (default_filename != "" && !std::filesystem::is_regular_file(path))
             {
-                throw std::runtime_error("The " + path + " directory specified without filename");
+                throw std::runtime_error("The " + path.string() + " directory specified without filename or this file don't exist in the directory");
             }
 
+            return path;
         };
 
-    base_path = get_flag_value("--base");
-    log_path = get_flag_value("--log");
-    path_folder = get_flag_value("--path");
-
-    handle_path(base_path, "base.csv");
-    handle_path(log_path, "log.txt");
-    handle_path(path_folder);
+    base_path = handle_path(get_flag_value("--base"), "base.csv");
+    log_path = handle_path(get_flag_value("--log"), "log.txt");
+    path_folder = handle_path(get_flag_value("--path"));
 
 }
-
-

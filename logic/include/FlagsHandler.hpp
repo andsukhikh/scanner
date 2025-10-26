@@ -1,11 +1,12 @@
 #include <string>
 #include <vector>
+#include <filesystem>
 
 struct FlagsHandler
 {
-    std::string base_path;
-    std::string log_path;
-    std::string path_folder;
+    std::filesystem::path base_path;
+    std::filesystem::path log_path;
+    std::filesystem::path path_folder;
 
     void parse(const std::vector<std::string>& argv);
 };

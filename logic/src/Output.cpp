@@ -49,7 +49,7 @@ Logger& Logger::get_instance()
     return instance_;
 }
 
-void Logger::set_log_directory_to(std::filesystem::path path)
+void Logger::set_log_directory_to(const std::filesystem::path& path)
 {
     std::lock_guard lock(mutex_);
 
@@ -69,5 +69,3 @@ void Logger::log(std::filesystem::path path, std::string_view hash, std::string_
     log_file_ << std::format("Verdict                    : {}\n", verdict);
     log_file_ << "\n";
 }
-
-

@@ -32,7 +32,7 @@ class Logger
 public:
     static Logger& get_instance();
 
-    void set_log_directory_to(std::filesystem::path path);
+    void set_log_directory_to(const std::filesystem::path& path);
 
     void log(std::filesystem::path path, std::string_view hash, std::string_view verdict);
 
